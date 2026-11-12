@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-fire me-2"></i>{{ title }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{% url 'incidents:export_csv' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-download me-1"></i>Export CSV</a>
+    <a href="{% url 'incidents:incident_create' %}" class="btn btn-fire btn-sm"><i class="bi bi-plus-lg me-1"></i>Report Incident</a>
+  </div>
+</div>
+<div class="card mb-3"><div class="card-body py-2">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-4"><input type="text" name="q" value="{{ form.q.value|default:'' }}" class="form-control form-control-sm" placeholder="Search..."></div>
+    <div class="col-auto">{{ form.severity }}</div>
+    <div class="col-auto">{{ form.status }}</div>
+    <div class="col-auto"><button type="submit" class="btn btn-outline-success btn-sm">Search</button></div>
+    <div class="col-auto"><a href="{% url 'incidents:incident_list' %}" class="btn btn-outline-secondary btn-sm">Clear</a></div>
+  </form>
+</div></div>
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover table-forest mb-0">
+    <thead><tr><th>ID</th><th>Title</th><th>Forest</th><th>Severity</th><th>Status</th><th>Start Time</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for inc in page_obj %}
+      <tr>
+        <td><a href="{% url 'incidents:incident_detail' inc.pk %}" class="fw-bold">{{ inc.incident_id }}</a></td>
+        <td>{{ inc.title|truncatechars:45 }}</td>
+        <td class="small">{{ inc.forest|default:"—" }}</td>
+        <td><span class="badge {% if inc.severity == 'catastrophic' %}bg-danger{% elif inc.severity == 'major' %}bg-warning text-dark{% elif inc.severity == 'moderate' %}bg-secondary{% else %}bg-light text-dark border{% endif %}">{{ inc.get_severity_display }}</span></td>
+        <td><span class="badge {% if inc.status == 'confirmed' or inc.status == 'suspected' %}bg-danger{% elif inc.status == 'under_control' %}bg-warning text-dark{% elif inc.status == 'extinguished' %}bg-success{% else %}bg-secondary{% endif %}">{{ inc.get_status_display }}</span></td>
+        <td class="small text-muted">{{ inc.fire_start_time|date:"d M Y H:i" }}</td>
+        <td>
+          <a href="{% url 'incidents:incident_detail' inc.pk %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-eye"></i></a>
+          <a href="{% url 'incidents:incident_update' inc.pk %}" class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-pencil"></i></a>
+          <a href="{% url 'incidents:incident_delete' inc.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No incidents found.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% if page_obj.has_other_pages %}
+<nav class="mt-3"><ul class="pagination pagination-sm justify-content-center">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹ Prev</a></li>{% endif %}
+  <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next ›</a></li>{% endif %}
+</ul></nav>{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+    <h1 class="section-title"><i class="bi bi-tree me-2"></i>{{ title }}</h1>
+    <a href="{% url 'forest_env:forest_create' %}" class="btn btn-forest">
+        <i class="bi bi-plus-lg me-1"></i>Add Forest
+    </a>
+</div>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover table-forest mb-0">
+            <thead><tr>
+                <th>#</th><th>Name</th><th>State</th><th>District</th>
+                <th>Type</th><th>Area (ha)</th><th>Protected</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+                {% for f in forests %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{% url 'forest_env:forest_detail' f.pk %}" class="fw-semibold">{{ f.name }}</a></td>
+                    <td>{{ f.state }}</td>
+                    <td>{{ f.district }}</td>
+                    <td>{{ f.forest_type|default:"—" }}</td>
+                    <td>{{ f.total_area_hectares|default:"—" }}</td>
+                    <td>{% if f.is_protected %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                    <td>
+                        <a href="{% url 'forest_env:forest_update' f.pk %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'forest_env:forest_delete' f.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center text-muted py-4">No forests found. <a href="{% url 'forest_env:forest_create' %}">Add the first one →</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

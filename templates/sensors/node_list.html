@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-cpu me-2"></i>{{ title }}</h1>
+  <div class="d-flex gap-2">
+    <select class="form-select form-select-sm" style="width:auto;" onchange="location.href='?status='+this.value">
+      <option value="">All Status</option>
+      <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+      <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+      <option value="faulty" {% if status_filter == 'faulty' %}selected{% endif %}>Faulty</option>
+    </select>
+    <a href="{% url 'sensors:node_create' %}" class="btn btn-forest btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Node</a>
+  </div>
+</div>
+<div class="row g-3">
+  {% for item in node_data %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card stat-card border-{% if item.node.status == 'active' %}success{% elif item.node.status == 'faulty' %}danger{% else %}secondary{% endif %}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h6 class="mb-0 fw-bold">{{ item.node.node_id }}</h6>
+            <small class="text-muted">{{ item.node.name }}</small>
+          </div>
+          <span class="badge {% if item.node.status == 'active' %}bg-success{% elif item.node.status == 'faulty' %}bg-danger{% else %}bg-secondary{% endif %}">
+            {{ item.node.get_status_display }}
+          </span>
+        </div>
+        <div class="small mb-2"><i class="bi bi-geo-alt me-1 text-muted"></i>{{ item.node.forest_area|default:"No area assigned" }}</div>
+        {% if item.latest %}
+        <div class="d-flex gap-3 my-2 small">
+          <span><i class="bi bi-thermometer text-danger"></i> {{ item.latest.temperature|default:"—" }}°C</span>
+          <span><i class="bi bi-droplet text-primary"></i> {{ item.latest.humidity|default:"—" }}%</span>
+          <span><i class="bi bi-wind text-secondary"></i> {{ item.latest.smoke_level|default:"—" }}ppm</span>
+        </div>
+        <div class="mb-2">
+          <span class="badge badge-risk-{{ item.latest.risk_level }}">{{ item.latest.risk_level|upper }}</span>
+          {% if item.latest.is_simulated %}<span class="simulated-badge ms-1">SIMULATED</span>{% endif %}
+        </div>
+        {% endif %}
+        <div class="d-flex gap-2 mt-3">
+          <a href="{% url 'sensors:node_detail' item.node.pk %}" class="btn btn-sm btn-outline-primary flex-fill">View</a>
+          <form method="post" action="{% url 'sensors:simulate_reading' item.node.pk %}" class="flex-fill">
+            {% csrf_token %}
+            <input type="hidden" name="scenario" value="normal">
+            <button type="submit" class="btn btn-sm btn-outline-warning w-100">Simulate</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12"><div class="text-center py-5 text-muted">
+    <i class="bi bi-cpu" style="font-size:3rem;"></i>
+    <p class="mt-3">No sensor nodes found. <a href="{% url 'sensors:node_create' %}">Add the first one →</a></p>
+  </div></div>
+  {% endfor %}
+</div>
+{% endblock %}

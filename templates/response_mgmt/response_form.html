@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title">{{ title }}</h1>
+  <a href="{% url 'response_mgmt:response_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="row justify-content-center"><div class="col-md-8">
+  <div class="card"><div class="card-header">{{ action }} Record</div>
+  <div class="card-body">
+    <form method="post" novalidate>{% csrf_token %}
+      {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label fw-semibold">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors.0 }}</div>{% endif %}
+      </div>{% endfor %}
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-forest px-4">{{ action }}</button>
+        <a href="{% url 'response_mgmt:response_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

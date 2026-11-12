@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-bell me-2"></i>{{ alert.alert_id }}</h1>
+  <a href="{% url 'alerts:alert_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card mb-3 severity-{{ alert.severity }}">
+      <div class="card-header bg-{% if alert.severity == 'emergency' or alert.severity == 'critical' %}danger{% elif alert.severity == 'warning' %}warning{% else %}info{% endif %} text-{% if alert.severity == 'warning' %}dark{% else %}white{% endif %}">
+        <span class="fw-bold">{{ alert.get_severity_display }} ALERT</span>
+        <span class="float-end">{{ alert.get_status_display }}</span>
+      </div>
+      <div class="card-body">
+        <h5>{{ alert.title }}</h5>
+        <p>{{ alert.message }}</p>
+        <div class="row g-2 small">
+          <div class="col-md-4"><strong>Risk Score:</strong> {{ alert.fire_risk_score|default:"—" }}/100</div>
+          <div class="col-md-4"><strong>Condition:</strong> {{ alert.condition|default:"—" }}</div>
+          <div class="col-md-4"><strong>Area:</strong> {{ alert.forest_area|default:"—" }}</div>
+          <div class="col-md-4"><strong>Node:</strong> {{ alert.sensor_node|default:"—" }}</div>
+          <div class="col-md-4"><strong>Created:</strong> {{ alert.created_at|date:"d M Y H:i" }}</div>
+          {% if alert.is_simulated %}<div class="col-12"><span class="simulated-badge">SIMULATED DATA</span></div>{% endif %}
+        </div>
+      </div>
+      <div class="card-footer d-flex gap-2">
+        {% if alert.status == 'active' %}
+        <form method="post" action="{% url 'alerts:alert_acknowledge' alert.pk %}">{% csrf_token %}
+          <button type="submit" class="btn btn-warning btn-sm"><i class="bi bi-check me-1"></i>Acknowledge</button>
+        </form>
+        {% endif %}
+        {% if alert.status != 'resolved' %}
+        <form method="post" action="{% url 'alerts:alert_resolve' alert.pk %}">{% csrf_token %}
+          <select name="status" class="form-select form-select-sm d-inline-block" style="width:auto;">
+            <option value="resolved">Resolved</option>
+            <option value="false_alarm">False Alarm</option>
+          </select>
+          <button type="submit" class="btn btn-success btn-sm ms-1"><i class="bi bi-check-all me-1"></i>Close</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card"><div class="card-header">Notification Log</div>
+    <div class="card-body">
+      {% for log in logs %}
+      <div class="d-flex justify-content-between border-bottom py-2">
+        <span><span class="badge bg-secondary">{{ log.get_channel_display }}</span> {{ log.recipient|truncatechars:20 }}</span>
+        <span class="badge {% if log.status == 'sent' %}bg-success{% elif log.status == 'failed' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ log.get_status_display }}</span>
+      </div>
+      {% empty %}<p class="text-muted mb-0 small">No notifications sent.</p>{% endfor %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

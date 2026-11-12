@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-fire me-2 text-danger"></i>{{ incident.incident_id }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{% url 'incidents:incident_update' incident.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
+    <a href="{% url 'incidents:incident_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-md-5">
+    <div class="card mb-3">
+      <div class="card-header bg-{% if incident.severity == 'catastrophic' %}danger{% elif incident.severity == 'major' %}warning{% else %}secondary{% endif %} text-{% if incident.severity == 'major' %}dark{% else %}white{% endif %}">
+        {{ incident.get_severity_display }} — {{ incident.get_status_display }}
+      </div>
+      <div class="card-body">
+        <h5>{{ incident.title }}</h5>
+        <p class="text-muted">{{ incident.description }}</p>
+        <dl class="row small mb-0">
+          <dt class="col-sm-5">Forest</dt><dd class="col-sm-7">{{ incident.forest|default:"—" }}</dd>
+          <dt class="col-sm-5">Area</dt><dd class="col-sm-7">{{ incident.forest_area|default:"—" }}</dd>
+          <dt class="col-sm-5">Started</dt><dd class="col-sm-7">{{ incident.fire_start_time|date:"d M Y H:i" }}</dd>
+          <dt class="col-sm-5">Ended</dt><dd class="col-sm-7">{{ incident.fire_end_time|date:"d M Y H:i"|default:"Ongoing" }}</dd>
+          <dt class="col-sm-5">Area Burned</dt><dd class="col-sm-7">{{ incident.area_burned_hectares|default:"—" }} ha</dd>
+          <dt class="col-sm-5">Location</dt><dd class="col-sm-7">{{ incident.location_description|default:"—" }}</dd>
+          <dt class="col-sm-5">Reported By</dt><dd class="col-sm-7">{{ incident.reported_by|default:"System" }}</dd>
+          {% if incident.is_simulated %}<dt class="col-sm-5">Data</dt><dd class="col-sm-7"><span class="simulated-badge">SIMULATED</span></dd>{% endif %}
+        </dl>
+      </div>
+    </div>
+    <div class="card"><div class="card-header">Add Update</div>
+    <div class="card-body">
+      <form method="post" action="{% url 'incidents:incident_add_update' incident.pk %}">
+        {% csrf_token %}
+        {% for field in update_form %}
+        <div class="mb-2">
+          <label class="form-label small fw-semibold">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-forest btn-sm w-100">Add Update</button>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-md-7">
+    <div class="card mb-3"><div class="card-header">Incident Updates</div>
+    <div class="card-body" style="max-height:300px;overflow-y:auto;">
+      {% for update in updates %}
+      <div class="border-start border-3 border-{% if update.new_status == 'extinguished' %}success{% elif update.new_status == 'confirmed' %}danger{% else %}secondary{% endif %} ps-3 mb-3">
+        <div class="d-flex justify-content-between">
+          <strong>{{ update.updated_by|default:"System" }}</strong>
+          <small class="text-muted">{{ update.updated_at|date:"d M H:i" }}</small>
+        </div>
+        <p class="mb-1 small">{{ update.update_text }}</p>
+        {% if update.new_status %}<span class="badge bg-secondary small">Status → {{ update.new_status }}</span>{% endif %}
+      </div>
+      {% empty %}<p class="text-muted small">No updates yet.</p>{% endfor %}
+    </div></div>
+    <div class="card"><div class="card-header d-flex justify-content-between">
+      <span>Response Operations ({{ responses|length }})</span>
+      <a href="{% url 'response_mgmt:response_create' %}" class="btn btn-sm btn-outline-success">+ Add Response</a>
+    </div>
+    <div class="table-responsive"><table class="table table-sm mb-0">
+      <thead class="table-forest"><tr><th>Team</th><th>Status</th><th>Personnel</th><th>Dispatched</th></tr></thead>
+      <tbody>
+        {% for r in responses %}
+        <tr>
+          <td>{{ r.response_team }}</td>
+          <td><span class="badge bg-secondary">{{ r.get_status_display }}</span></td>
+          <td>{{ r.personnel_count }}</td>
+          <td class="small text-muted">{{ r.dispatched_at|date:"d M H:i" }}</td>
+        </tr>
+        {% empty %}<tr><td colspan="4" class="text-center text-muted py-2">No response operations.</td></tr>{% endfor %}
+      </tbody>
+    </table></div></div>
+  </div>
+</div>
+{% endblock %}

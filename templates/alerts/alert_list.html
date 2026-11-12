@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-bell-fill me-2"></i>{{ title }}</h1>
+  {% if user.is_admin %}<a href="{% url 'alerts:alert_create' %}" class="btn btn-forest btn-sm"><i class="bi bi-plus-lg me-1"></i>Create Alert</a>{% endif %}
+</div>
+<div class="card mb-3"><div class="card-body py-2">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto">
+      <select name="severity" class="form-select form-select-sm">
+        <option value="">All Severity</option>
+        <option value="info" {% if severity_filter == 'info' %}selected{% endif %}>Info</option>
+        <option value="warning" {% if severity_filter == 'warning' %}selected{% endif %}>Warning</option>
+        <option value="critical" {% if severity_filter == 'critical' %}selected{% endif %}>Critical</option>
+        <option value="emergency" {% if severity_filter == 'emergency' %}selected{% endif %}>Emergency</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <select name="status" class="form-select form-select-sm">
+        <option value="">All Status</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+        <option value="acknowledged" {% if status_filter == 'acknowledged' %}selected{% endif %}>Acknowledged</option>
+        <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+      </select>
+    </div>
+    <div class="col-auto"><button type="submit" class="btn btn-outline-success btn-sm">Filter</button></div>
+    <div class="col-auto"><a href="{% url 'alerts:alert_list' %}" class="btn btn-outline-secondary btn-sm">Clear</a></div>
+  </form>
+</div></div>
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover table-forest mb-0">
+    <thead><tr><th>Alert ID</th><th>Severity</th><th>Title</th><th>Area</th><th>Status</th><th>Time</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for alert in page_obj %}
+      <tr class="severity-{{ alert.severity }}">
+        <td><a href="{% url 'alerts:alert_detail' alert.pk %}" class="fw-bold">{{ alert.alert_id }}</a></td>
+        <td><span class="badge {% if alert.severity == 'emergency' %}bg-danger{% elif alert.severity == 'critical' %}bg-danger{% elif alert.severity == 'warning' %}bg-warning text-dark{% else %}bg-info{% endif %}">{{ alert.get_severity_display }}</span></td>
+        <td>{{ alert.title|truncatechars:50 }}</td>
+        <td class="small">{{ alert.forest_area|default:"—" }}</td>
+        <td><span class="badge {% if alert.status == 'active' %}bg-danger{% elif alert.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">{{ alert.get_status_display }}</span></td>
+        <td class="small text-muted">{{ alert.created_at|date:"d M H:i" }}</td>
+        <td><a href="{% url 'alerts:alert_detail' alert.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+      </tr>
+      {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No alerts found.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% if page_obj.has_other_pages %}
+<nav class="mt-3"><ul class="pagination pagination-sm justify-content-center">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹ Prev</a></li>{% endif %}
+  <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next ›</a></li>{% endif %}
+</ul></nav>{% endif %}
+{% endblock %}

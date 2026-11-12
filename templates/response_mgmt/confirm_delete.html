@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4"><div class="col-md-6">
+  <div class="card border-danger">
+    <div class="card-header bg-danger text-white">{{ title }}</div>
+    <div class="card-body text-center">
+      <p>Delete <strong>{{ object }}</strong>?</p>
+      <form method="post">{% csrf_token %}
+        <button type="submit" class="btn btn-danger me-2">Delete</button>
+        <a href="{% url 'response_mgmt:response_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-play-circle me-2"></i>{{ title }}</h1>
+  <a href="{% url 'sensors:node_detail' node.pk %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header fw-semibold"><i class="bi bi-cpu me-2"></i>Sensor Node: {{ node.node_id }}</div>
+      <div class="card-body">
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          All simulated readings are marked as <strong>SIMULATED</strong> and are <em>not</em> real sensor data.
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <p class="fw-semibold mb-3">Select a Simulation Scenario:</p>
+          <div class="row g-3 mb-4">
+            <!-- Normal -->
+            <div class="col-6 col-md-3">
+              <label for="s_normal" class="w-100 h-100" style="cursor:pointer;">
+                <input type="radio" name="scenario" id="s_normal" value="normal" class="d-none" required>
+                <div class="card border-success text-center p-3 h-100 scenario-card" onclick="selectScenario('s_normal', this)">
+                  <div style="font-size:2.2rem;">&#x1F7E2;</div>
+                  <div class="fw-semibold text-success mt-1">Normal</div>
+                  <small class="text-muted">Safe conditions</small>
+                </div>
+              </label>
+            </div>
+            <!-- Warning -->
+            <div class="col-6 col-md-3">
+              <label for="s_warning" class="w-100 h-100" style="cursor:pointer;">
+                <input type="radio" name="scenario" id="s_warning" value="warning" class="d-none">
+                <div class="card border-warning text-center p-3 h-100 scenario-card" onclick="selectScenario('s_warning', this)">
+                  <div style="font-size:2.2rem;">&#x26A0;&#xFE0F;</div>
+                  <div class="fw-semibold text-warning mt-1">Warning</div>
+                  <small class="text-muted">Elevated risk</small>
+                </div>
+              </label>
+            </div>
+            <!-- Fire Suspected -->
+            <div class="col-6 col-md-3">
+              <label for="s_fire_suspected" class="w-100 h-100" style="cursor:pointer;">
+                <input type="radio" name="scenario" id="s_fire_suspected" value="fire_suspected" class="d-none">
+                <div class="card border-orange text-center p-3 h-100 scenario-card" onclick="selectScenario('s_fire_suspected', this)" style="border-color:#e67e22!important;">
+                  <div style="font-size:2.2rem;">&#x1F7E0;</div>
+                  <div class="fw-semibold mt-1" style="color:#e67e22;">Fire Suspected</div>
+                  <small class="text-muted">High smoke/temp</small>
+                </div>
+              </label>
+            </div>
+            <!-- Fire Detected -->
+            <div class="col-6 col-md-3">
+              <label for="s_fire_detected" class="w-100 h-100" style="cursor:pointer;">
+                <input type="radio" name="scenario" id="s_fire_detected" value="fire_detected" class="d-none">
+                <div class="card border-danger text-center p-3 h-100 scenario-card" onclick="selectScenario('s_fire_detected', this)">
+                  <div style="font-size:2.2rem;">&#x1F525;</div>
+                  <div class="fw-semibold text-danger mt-1">Fire Detected</div>
+                  <small class="text-muted">Active fire!</small>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div id="scenario-error" class="text-danger small mb-2 d-none">Please select a scenario.</div>
+          <button type="submit" class="btn btn-forest w-100 py-2">
+            <i class="bi bi-play-fill me-1"></i>Generate Simulated Reading
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scenario descriptions -->
+    <div class="card mt-3">
+      <div class="card-header">Scenario Details</div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead class="table-forest"><tr><th>Scenario</th><th>Temp (°C)</th><th>Humidity (%)</th><th>Smoke (ppm)</th><th>Gas (ppm)</th><th>Flame</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge bg-success">Normal</span></td><td>20–35</td><td>50–80</td><td>10–80</td><td>10–60</td><td>No</td></tr>
+            <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>38–52</td><td>25–45</td><td>100–220</td><td>70–140</td><td>No</td></tr>
+            <tr><td><span class="badge" style="background:#e67e22;">Fire Suspected</span></td><td>55–72</td><td>12–28</td><td>250–420</td><td>150–250</td><td>Maybe</td></tr>
+            <tr><td><span class="badge bg-danger">Fire Detected</span></td><td>75–110</td><td>5–18</td><td>450–700</td><td>250–450</td><td>Yes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function selectScenario(radioId, card) {
+  document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('border-primary', 'shadow-sm'));
+  document.getElementById(radioId).checked = true;
+  card.classList.add('shadow-sm');
+  document.getElementById('scenario-error').classList.add('d-none');
+}
+document.querySelector('form').addEventListener('submit', function(e) {
+  const selected = document.querySelector('input[name="scenario"]:checked');
+  if (!selected) {
+    e.preventDefault();
+    document.getElementById('scenario-error').classList.remove('d-none');
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,353 @@
+/* Forest Fire Detection System - Custom Styles */
+
+:root {
+    --forest-dark: #1a3a2a;
+    --forest-green: #2d5a27;
+    --forest-mid: #3d7a35;
+    --forest-light: #5a9e4e;
+    --forest-pale: #e8f5e2;
+    --fire-red: #c0392b;
+    --fire-orange: #e67e22;
+    --fire-yellow: #f39c12;
+    --warning-amber: #f0ad4e;
+    --text-dark: #1a2a1a;
+    --sidebar-width: 260px;
+    --header-height: 60px;
+}
+
+/* ── General ── */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #f4f7f4;
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+}
+
+a { text-decoration: none; }
+
+/* ── Sidebar ── */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: linear-gradient(180deg, var(--forest-dark) 0%, var(--forest-green) 60%, var(--forest-mid) 100%);
+    z-index: 1000;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    box-shadow: 3px 0 15px rgba(0,0,0,0.3);
+}
+
+.sidebar-brand {
+    padding: 20px 20px 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    text-align: center;
+}
+
+.sidebar-brand .brand-icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.sidebar-brand .brand-title {
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+    text-transform: uppercase;
+}
+
+.sidebar-brand .brand-subtitle {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.nav-section-label {
+    padding: 14px 20px 4px;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.sidebar .nav-link {
+    color: rgba(255,255,255,0.82);
+    padding: 10px 20px;
+    border-radius: 0;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    padding-left: 26px;
+}
+
+.sidebar .nav-link .icon {
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+/* ── Main content ── */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Top Navbar ── */
+.top-navbar {
+    background: #fff;
+    border-bottom: 1px solid #e0e8e0;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    justify-content: space-between;
+}
+
+.page-title-nav {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--forest-dark);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--forest-mid);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* ── Content Area ── */
+.content-area {
+    padding: 28px;
+    flex: 1;
+}
+
+/* ── Dashboard Cards ── */
+.stat-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.stat-card .card-body {
+    padding: 20px;
+}
+
+.stat-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.stat-label {
+    font-size: 0.78rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* ── Risk Level Badges ── */
+.badge-risk-low { background-color: #28a745; }
+.badge-risk-medium { background-color: var(--fire-yellow); color: #222; }
+.badge-risk-high { background-color: var(--fire-orange); }
+.badge-risk-critical { background-color: var(--fire-red); }
+
+/* ── Condition Badges ── */
+.badge-normal { background-color: #28a745; }
+.badge-warning { background-color: var(--warning-amber); color: #222; }
+.badge-fire-suspected { background-color: var(--fire-orange); }
+.badge-fire-detected { background-color: var(--fire-red); animation: pulse-red 1s infinite; }
+
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(192,57,43,0); }
+}
+
+/* ── Tables ── */
+.table-forest th {
+    background-color: var(--forest-dark);
+    color: #fff;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.table-forest tbody tr:hover {
+    background-color: var(--forest-pale);
+}
+
+/* ── Cards ── */
+.card {
+    border: 1px solid #e0e8e0;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    background-color: var(--forest-pale);
+    border-bottom: 1px solid #c8e0c0;
+    font-weight: 600;
+    color: var(--forest-dark);
+}
+
+/* ── Buttons ── */
+.btn-forest {
+    background-color: var(--forest-green);
+    color: #fff;
+    border: none;
+}
+.btn-forest:hover { background-color: var(--forest-dark); color: #fff; }
+
+.btn-fire {
+    background-color: var(--fire-red);
+    color: #fff;
+    border: none;
+}
+.btn-fire:hover { background-color: #a93226; color: #fff; }
+
+/* ── Login Page ── */
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--forest-dark) 0%, var(--forest-green) 50%, var(--forest-mid) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border: none;
+    overflow: hidden;
+    max-width: 450px;
+    width: 100%;
+}
+
+.login-header {
+    background: linear-gradient(135deg, var(--forest-dark), var(--forest-green));
+    padding: 32px;
+    text-align: center;
+    color: #fff;
+}
+
+.login-header .logo-icon { font-size: 3rem; }
+.login-header h4 { margin: 10px 0 0; font-weight: 700; }
+.login-header p { margin: 0; opacity: 0.75; font-size: 0.85rem; }
+
+.login-body { padding: 32px; background: #fff; }
+
+/* ── Alert Severity Colors ── */
+.severity-info { border-left: 4px solid #17a2b8; }
+.severity-warning { border-left: 4px solid var(--fire-yellow); }
+.severity-critical { border-left: 4px solid var(--fire-orange); }
+.severity-emergency { border-left: 4px solid var(--fire-red); }
+
+/* ── Simulated data badge ── */
+.simulated-badge {
+    font-size: 0.65rem;
+    background: #ffc107;
+    color: #222;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* ── Sidebar scrollbar ── */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* ── Section headers ── */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--forest-pale);
+}
+
+.section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--forest-dark);
+    margin: 0;
+}
+
+/* ── Fire risk indicator ── */
+.risk-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.risk-low { background: #d4edda; color: #155724; }
+.risk-medium { background: #fff3cd; color: #856404; }
+.risk-high { background: #ffe5d0; color: #b45309; }
+.risk-critical { background: #f8d7da; color: #842029; }

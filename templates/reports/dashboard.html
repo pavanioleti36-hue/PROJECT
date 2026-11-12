@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Fire Alert Banner -->
+{% if fire_detected_count > 0 %}
+<div class="alert alert-danger d-flex align-items-center mb-4 border-0 shadow-sm" role="alert" style="border-left:5px solid #c0392b !important;">
+    <span style="font-size:1.8rem;">🔥</span>
+    <div class="ms-3">
+        <strong>FIRE DETECTED!</strong> {{ fire_detected_count }} active fire detection event(s) in the last 24 hours.
+        <a href="{% url 'alerts:alert_list' %}?status=active" class="alert-link ms-2">View Alerts →</a>
+    </div>
+</div>
+{% elif fire_suspected_count > 0 %}
+<div class="alert alert-warning d-flex align-items-center mb-4 border-0 shadow-sm" role="alert">
+    <span style="font-size:1.8rem;">⚠️</span>
+    <div class="ms-3">
+        <strong>Fire Suspected!</strong> {{ fire_suspected_count }} fire-suspected event(s) in the last 24 hours.
+        <a href="{% url 'alerts:alert_list' %}?status=active" class="alert-link ms-2">View Alerts →</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Section Header -->
+<div class="section-header">
+    <h1 class="section-title">
+        <i class="bi bi-speedometer2 me-2" style="color:#2d5a27;"></i>System Dashboard
+    </h1>
+    <div class="d-flex gap-2 align-items-center">
+        <span class="risk-indicator risk-{{ current_risk_level }}">
+            🔥 Risk: {{ current_risk_level|upper }}
+        </span>
+        <a href="{% url 'dashboard:fire_risk_map' %}" class="btn btn-sm btn-outline-success">
+            <i class="bi bi-map me-1"></i>View Map
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards Row 1 -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0" style="background:linear-gradient(135deg,#1a3a2a,#2d5a27);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label text-white-50">Forests</div>
+                        <div class="stat-value" data-target="{{ total_forests }}">{{ total_forests }}</div>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-10">🌲</div>
+                </div>
+                <a href="{% url 'forest_env:forest_list' %}" class="text-white-50 small">View all →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0" style="background:linear-gradient(135deg,#3d7a35,#5a9e4e);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label text-white-50">Forest Areas</div>
+                        <div class="stat-value" data-target="{{ total_areas }}">{{ total_areas }}</div>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-10">🗺️</div>
+                </div>
+                <a href="{% url 'forest_env:area_list' %}" class="text-white-50 small">View all →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0" style="background:linear-gradient(135deg,#1565c0,#1976d2);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label text-white-50">Total Sensors</div>
+                        <div class="stat-value" data-target="{{ total_sensors }}">{{ total_sensors }}</div>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-10">📡</div>
+                </div>
+                <small class="text-white-50">{{ active_sensors }} active</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0" style="background:linear-gradient(135deg,#b71c1c,#c62828);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label text-white-50">Active Alerts</div>
+                        <div class="stat-value" data-target="{{ active_alerts }}">{{ active_alerts }}</div>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-10">🔔</div>
+                </div>
+                <a href="{% url 'alerts:alert_list' %}" class="text-white-50 small">View all →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row 2 -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#fff3cd; color:#b8860b;">🔥</div>
+                    <div>
+                        <div class="stat-label">Fire Incidents</div>
+                        <div class="stat-value text-danger">{{ total_incidents }}</div>
+                    </div>
+                </div>
+                <a href="{% url 'incidents:incident_list' %}" class="text-muted small">Manage incidents →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#fde8e8; color:#c0392b;">⚠️</div>
+                    <div>
+                        <div class="stat-label">High Risk Areas</div>
+                        <div class="stat-value text-warning">{{ high_risk_areas }}</div>
+                    </div>
+                </div>
+                <a href="{% url 'forest_env:area_list' %}" class="text-muted small">View areas →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#e8f5e2; color:#2d5a27;">📊</div>
+                    <div>
+                        <div class="stat-label">Total Alerts</div>
+                        <div class="stat-value text-success">{{ total_alerts }}</div>
+                    </div>
+                </div>
+                <a href="{% url 'dashboard:alert_history' %}" class="text-muted small">Alert history →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#e3f2fd; color:#1565c0;">📡</div>
+                    <div>
+                        <div class="stat-label">Risk Score</div>
+                        <div class="stat-value" style="color:{% if current_risk_level == 'critical' %}#c0392b{% elif current_risk_level == 'high' %}#e67e22{% elif current_risk_level == 'medium' %}#f39c12{% else %}#28a745{% endif %};">
+                            {{ current_risk_score|floatformat:0 }}/100
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'detection:risk_dashboard' %}" class="text-muted small">Full assessment →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-bar-chart me-2"></i>Sensor Readings — Last 7 Days</span>
+            </div>
+            <div class="card-body" style="height:240px;">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart me-2"></i>Risk Level Distribution
+            </div>
+            <div class="card-body" style="height:240px;">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sensor Live Chart -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-activity me-2"></i>Live Sensor Data (Last 50 Readings)</span>
+                <small class="text-muted">Auto-refreshes every 30s</small>
+            </div>
+            <div class="card-body" style="height:300px;">
+                <canvas id="sensorLiveChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Data Tables -->
+<div class="row g-3">
+    <!-- Recent Alerts -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <span><i class="bi bi-bell me-2"></i>Recent Alerts</span>
+                <a href="{% url 'alerts:alert_list' %}" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-forest">
+                        <tr>
+                            <th>ID</th><th>Severity</th><th>Area</th><th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in recent_alerts %}
+                        <tr class="severity-{{ alert.severity }}">
+                            <td><a href="{% url 'alerts:alert_detail' alert.pk %}">{{ alert.alert_id }}</a></td>
+                            <td>
+                                <span class="badge {% if alert.severity == 'emergency' %}bg-danger{% elif alert.severity == 'critical' %}badge-risk-critical{% elif alert.severity == 'warning' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                    {{ alert.get_severity_display }}
+                                </span>
+                            </td>
+                            <td class="small">{{ alert.forest_area|default:"—" }}</td>
+                            <td class="small text-muted">{{ alert.created_at|date:"d M H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No alerts yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Incidents -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <span><i class="bi bi-fire me-2"></i>Recent Fire Incidents</span>
+                <a href="{% url 'incidents:incident_list' %}" class="btn btn-sm btn-outline-danger">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-forest">
+                        <tr>
+                            <th>ID</th><th>Title</th><th>Severity</th><th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inc in recent_incidents %}
+                        <tr>
+                            <td><a href="{% url 'incidents:incident_detail' inc.pk %}">{{ inc.incident_id }}</a></td>
+                            <td class="small">{{ inc.title|truncatechars:30 }}</td>
+                            <td>
+                                <span class="badge {% if inc.severity == 'catastrophic' %}bg-danger{% elif inc.severity == 'major' %}bg-warning text-dark{% elif inc.severity == 'moderate' %}bg-secondary{% else %}bg-light text-dark{% endif %}">
+                                    {{ inc.get_severity_display }}
+                                </span>
+                            </td>
+                            <td class="small text-muted">{{ inc.get_status_display }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No incidents yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sensor Readings -->
+<div class="row g-3 mt-0">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <span><i class="bi bi-cpu me-2"></i>Recent Sensor Readings</span>
+                <a href="{% url 'sensors:reading_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-forest">
+                        <tr>
+                            <th>Node</th><th>Time</th><th>Temp °C</th><th>Humidity %</th>
+                            <th>Smoke ppm</th><th>Flame</th><th>Risk</th><th>Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent_readings %}
+                        <tr>
+                            <td><small>{{ r.node.node_id }}</small></td>
+                            <td><small class="text-muted">{{ r.timestamp|date:"d M H:i" }}</small></td>
+                            <td>{{ r.temperature|default:"—" }}</td>
+                            <td>{{ r.humidity|default:"—" }}</td>
+                            <td>{{ r.smoke_level|default:"—" }}</td>
+                            <td>{% if r.flame_detected %}<span class="text-danger fw-bold">🔥 YES</span>{% else %}<span class="text-success">No</span>{% endif %}</td>
+                            <td>
+                                <span class="badge badge-risk-{{ r.risk_level }}">{{ r.risk_level|upper }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {% if r.condition == 'fire_detected' %}bg-danger{% elif r.condition == 'fire_suspected' %}bg-orange{% elif r.condition == 'warning' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                    {{ r.get_condition_display }}
+                                </span>
+                                {% if r.is_simulated %}<span class="simulated-badge ms-1">SIM</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="8" class="text-center text-muted py-3">No readings yet. <a href="{% url 'sensors:node_list' %}">Go to Sensors →</a></td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    initDashboardCharts({
+        riskCounts: {
+            low: {{ risk_counts.low }},
+            medium: {{ risk_counts.medium }},
+            high: {{ risk_counts.high }},
+            critical: {{ risk_counts.critical }}
+        },
+        timeline: {
+            labels: {{ timeline_labels|safe }},
+            data: {{ timeline_data|safe }}
+        }
+    });
+    initSensorChart("{% url 'dashboard:sensor_chart_data' %}");
+});
+</script>
+{% endblock %}

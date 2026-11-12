@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-file-earmark-bar-graph me-2"></i>{{ title }}</h1>
+  <a href="{% url 'incidents:export_csv' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-download me-1"></i>Export CSV</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card text-center"><div class="card-body"><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total Incidents</div></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-danger"><div class="card-body"><div class="stat-value text-danger">{{ stats.by_severity.catastrophic }}</div><div class="stat-label">Catastrophic</div></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-warning"><div class="card-body"><div class="stat-value text-warning">{{ stats.by_severity.major }}</div><div class="stat-label">Major</div></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-success"><div class="card-body"><div class="stat-value text-success">{{ stats.by_status.extinguished }}</div><div class="stat-label">Extinguished</div></div></div></div>
+</div>
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover table-forest mb-0">
+    <thead><tr><th>ID</th><th>Title</th><th>Forest</th><th>Severity</th><th>Status</th><th>Area Burned</th><th>Start Time</th></tr></thead>
+    <tbody>
+      {% for inc in page_obj %}
+      <tr>
+        <td><a href="{% url 'incidents:incident_detail' inc.pk %}">{{ inc.incident_id }}</a></td>
+        <td>{{ inc.title|truncatechars:45 }}</td>
+        <td class="small">{{ inc.forest|default:"—" }}</td>
+        <td><span class="badge {% if inc.severity == 'catastrophic' %}bg-danger{% elif inc.severity == 'major' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ inc.get_severity_display }}</span></td>
+        <td><span class="badge bg-secondary">{{ inc.get_status_display }}</span></td>
+        <td>{{ inc.area_burned_hectares|default:"—" }} ha</td>
+        <td class="small text-muted">{{ inc.fire_start_time|date:"d M Y H:i" }}</td>
+      </tr>
+      {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No incidents found.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

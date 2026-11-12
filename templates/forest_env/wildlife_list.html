@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-bug me-2"></i>{{ title }}</h1>
+  <a href="{% url 'forest_env:wildlife_create' %}" class="btn btn-forest btn-sm"><i class="bi bi-plus-lg me-1"></i>Add</a>
+</div>
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover table-forest mb-0">
+    <thead><tr><th>Species</th><th>Scientific Name</th><th>Area</th><th>Status</th><th>Population</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for w in items %}
+      <tr>
+        <td class="fw-semibold">{{ w.species_name }}</td>
+        <td class="fst-italic text-muted small">{{ w.scientific_name|default:"—" }}</td>
+        <td>{{ w.forest_area.name }}</td>
+        <td><span class="badge {% if w.conservation_status == 'endangered' %}bg-danger{% elif w.conservation_status == 'rare' %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ w.get_conservation_status_display }}</span></td>
+        <td>{{ w.population_estimate|default:"—" }}</td>
+        <td>
+          <a href="{% url 'forest_env:wildlife_update' w.pk %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+          <a href="{% url 'forest_env:wildlife_delete' w.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No wildlife records.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-clock-history me-2"></i>{{ title }}</h1>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card text-center"><div class="card-body"><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total Alerts</div></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-danger"><div class="card-body"><div class="stat-value text-danger">{{ stats.active }}</div><div class="stat-label">Active</div></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-danger"><div class="card-body"><div class="stat-value text-danger">{{ stats.by_severity.critical }}</div><div class="stat-label">Critical</div></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-warning"><div class="card-body"><div class="stat-value text-warning">{{ stats.by_severity.warning }}</div><div class="stat-label">Warning</div></div></div></div>
+</div>
+<div class="card mb-3"><div class="card-body py-2">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto">
+      <select name="severity" class="form-select form-select-sm">
+        <option value="">All Severity</option>
+        <option value="info" {% if severity_filter == 'info' %}selected{% endif %}>Info</option>
+        <option value="warning" {% if severity_filter == 'warning' %}selected{% endif %}>Warning</option>
+        <option value="critical" {% if severity_filter == 'critical' %}selected{% endif %}>Critical</option>
+        <option value="emergency" {% if severity_filter == 'emergency' %}selected{% endif %}>Emergency</option>
+      </select>
+    </div>
+    <div class="col-auto"><button type="submit" class="btn btn-sm btn-outline-success">Filter</button></div>
+    <div class="col-auto"><a href="{% url 'dashboard:alert_history' %}" class="btn btn-sm btn-outline-secondary">Clear</a></div>
+  </form>
+</div></div>
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover table-forest mb-0">
+    <thead><tr><th>Alert ID</th><th>Severity</th><th>Title</th><th>Status</th><th>Created</th></tr></thead>
+    <tbody>
+      {% for a in page_obj %}
+      <tr>
+        <td><a href="{% url 'alerts:alert_detail' a.pk %}">{{ a.alert_id }}</a></td>
+        <td><span class="badge {% if a.severity == 'critical' or a.severity == 'emergency' %}bg-danger{% elif a.severity == 'warning' %}bg-warning text-dark{% else %}bg-info{% endif %}">{{ a.get_severity_display }}</span></td>
+        <td>{{ a.title|truncatechars:60 }}</td>
+        <td><span class="badge {% if a.status == 'active' %}bg-danger{% elif a.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">{{ a.get_status_display }}</span></td>
+        <td class="small text-muted">{{ a.created_at|date:"d M Y H:i" }}</td>
+      </tr>
+      {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No alerts found.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% if page_obj.has_other_pages %}
+<nav class="mt-3"><ul class="pagination pagination-sm justify-content-center">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹</a></li>{% endif %}
+  <li class="page-item disabled"><span class="page-link">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span></li>
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">›</a></li>{% endif %}
+</ul></nav>{% endif %}
+{% endblock %}

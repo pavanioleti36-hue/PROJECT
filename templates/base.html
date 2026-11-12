@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title|default:"Dashboard" }}{% endblock %} — Forest Fire Detection System</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="mainSidebar">
+    <div class="sidebar-brand">
+        <span class="brand-icon">🌲🔥</span>
+        <div class="brand-title">Forest Fire Detection</div>
+        <div class="brand-subtitle">Monitoring System</div>
+    </div>
+
+    <ul class="nav flex-column py-2">
+        <!-- Dashboard -->
+        <li class="nav-section-label">Main</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:home' %}">
+                <span class="icon"><i class="bi bi-speedometer2"></i></span> Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:fire_risk_map' %}">
+                <span class="icon"><i class="bi bi-map"></i></span> Fire Risk Map
+            </a>
+        </li>
+
+        <!-- Forest Environment -->
+        <li class="nav-section-label">Forest & Environment</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'forest_env:forest_list' %}">
+                <span class="icon"><i class="bi bi-tree"></i></span> Forests
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'forest_env:area_list' %}">
+                <span class="icon"><i class="bi bi-geo-alt"></i></span> Forest Areas
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'forest_env:vegetation_list' %}">
+                <span class="icon"><i class="bi bi-flower1"></i></span> Vegetation
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'forest_env:wildlife_list' %}">
+                <span class="icon"><i class="bi bi-bug"></i></span> Wildlife
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'forest_env:weather_list' %}">
+                <span class="icon"><i class="bi bi-cloud-sun"></i></span> Weather
+            </a>
+        </li>
+
+        <!-- Sensors -->
+        <li class="nav-section-label">Sensors & Data</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'sensors:node_list' %}">
+                <span class="icon"><i class="bi bi-cpu"></i></span> Sensor Nodes
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'sensors:reading_list' %}">
+                <span class="icon"><i class="bi bi-graph-up"></i></span> Sensor Readings
+            </a>
+        </li>
+
+        <!-- Fire Detection -->
+        <li class="nav-section-label">Fire Detection</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'detection:status' %}">
+                <span class="icon"><i class="bi bi-shield-exclamation"></i></span> Detection Status
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'detection:risk_dashboard' %}">
+                <span class="icon"><i class="bi bi-thermometer-high"></i></span> Risk Assessment
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'detection:threshold_list' %}">
+                <span class="icon"><i class="bi bi-sliders"></i></span> Thresholds
+            </a>
+        </li>
+
+        <!-- Alerts -->
+        <li class="nav-section-label">Alerts & Notifications</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alerts:alert_list' %}">
+                <span class="icon"><i class="bi bi-bell-fill"></i></span> Alerts
+                {% if active_alert_count %}
+                <span class="badge bg-danger ms-auto">{{ active_alert_count }}</span>
+                {% endif %}
+            </a>
+        </li>
+
+        <!-- Incidents -->
+        <li class="nav-section-label">Incidents & Response</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'incidents:incident_list' %}">
+                <span class="icon"><i class="bi bi-fire"></i></span> Fire Incidents
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'response_mgmt:response_list' %}">
+                <span class="icon"><i class="bi bi-truck"></i></span> Emergency Response
+            </a>
+        </li>
+
+        <!-- Reports -->
+        <li class="nav-section-label">Reports</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:alert_history' %}">
+                <span class="icon"><i class="bi bi-clock-history"></i></span> Alert History
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:incident_reports' %}">
+                <span class="icon"><i class="bi bi-file-earmark-bar-graph"></i></span> Incident Reports
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard:statistical_reports' %}">
+                <span class="icon"><i class="bi bi-bar-chart-line"></i></span> Statistics
+            </a>
+        </li>
+
+        <!-- User -->
+        <li class="nav-section-label">Account</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'accounts:profile' %}">
+                <span class="icon"><i class="bi bi-person-circle"></i></span> My Profile
+            </a>
+        </li>
+        {% if user.is_admin %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'accounts:user_list' %}">
+                <span class="icon"><i class="bi bi-people"></i></span> Users
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/admin/" target="_blank">
+                <span class="icon"><i class="bi bi-gear"></i></span> Admin Panel
+            </a>
+        </li>
+        {% endif %}
+        <li class="nav-item mt-2">
+            <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-link btn btn-link text-danger w-100 text-start border-0">
+                    <span class="icon"><i class="bi bi-box-arrow-left"></i></span> Logout
+                </button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Top Navbar -->
+    <div class="top-navbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-sm btn-outline-secondary d-md-none" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <span class="page-title-nav">{% block page_title %}{{ title|default:"Dashboard" }}{% endblock %}</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <!-- Alert bell -->
+            <a href="{% url 'alerts:alert_list' %}" class="position-relative text-secondary">
+                <i class="bi bi-bell fs-5"></i>
+                {% if active_alert_count %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;">
+                    {{ active_alert_count }}
+                </span>
+                {% endif %}
+            </a>
+            <!-- User dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-sm d-flex align-items-center gap-2 border-0 bg-transparent" 
+                        data-bs-toggle="dropdown">
+                    <div class="user-avatar">{{ user.username|first|upper }}</div>
+                    <span class="d-none d-sm-inline text-dark fw-semibold" style="font-size:0.9rem;">
+                        {{ user.get_full_name|default:user.username }}
+                    </span>
+                    <i class="bi bi-chevron-down small text-muted"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><h6 class="dropdown-header">{{ user.get_role_display }}</h6></li>
+                    <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    {% if user.is_admin %}
+                    <li><a class="dropdown-item" href="/admin/"><i class="bi bi-gear me-2"></i>Admin</a></li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="bi bi-box-arrow-left me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="px-4 pt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show auto-dismiss" role="alert">
+            <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'danger' %}bi-exclamation-triangle{% elif message.tags == 'warning' %}bi-exclamation-circle{% else %}bi-info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 text-muted border-top bg-white" style="font-size:0.78rem;">
+        Forest Fire Detection System &copy; 2024 &nbsp;|&nbsp; Powered by Django 6.1.2
+    </footer>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

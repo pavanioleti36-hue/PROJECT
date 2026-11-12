@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-graph-up me-2"></i>{{ title }}</h1>
+  <a href="{% url 'sensors:reading_create' %}" class="btn btn-forest btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Reading</a>
+</div>
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-auto">
+        <select name="condition" class="form-select form-select-sm">
+          <option value="">All Conditions</option>
+          <option value="normal" {% if condition_filter == 'normal' %}selected{% endif %}>Normal</option>
+          <option value="warning" {% if condition_filter == 'warning' %}selected{% endif %}>Warning</option>
+          <option value="fire_suspected" {% if condition_filter == 'fire_suspected' %}selected{% endif %}>Fire Suspected</option>
+          <option value="fire_detected" {% if condition_filter == 'fire_detected' %}selected{% endif %}>Fire Detected</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="risk" class="form-select form-select-sm">
+          <option value="">All Risk Levels</option>
+          <option value="low" {% if risk_filter == 'low' %}selected{% endif %}>Low</option>
+          <option value="medium" {% if risk_filter == 'medium' %}selected{% endif %}>Medium</option>
+          <option value="high" {% if risk_filter == 'high' %}selected{% endif %}>High</option>
+          <option value="critical" {% if risk_filter == 'critical' %}selected{% endif %}>Critical</option>
+        </select>
+      </div>
+      <div class="col-auto"><button type="submit" class="btn btn-outline-success btn-sm">Filter</button></div>
+      <div class="col-auto"><a href="{% url 'sensors:reading_list' %}" class="btn btn-outline-secondary btn-sm">Clear</a></div>
+    </form>
+  </div>
+</div>
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover table-forest mb-0 table-sm">
+    <thead><tr><th>Node</th><th>Time</th><th>Temp</th><th>Hum</th><th>Smoke</th><th>Gas</th><th>Flame</th><th>Risk</th><th>Condition</th><th>Sim</th></tr></thead>
+    <tbody>
+      {% for r in page_obj %}
+      <tr class="{% if r.condition == 'fire_detected' %}table-danger{% elif r.condition == 'fire_suspected' %}table-warning{% elif r.condition == 'warning' %}table-info{% endif %}">
+        <td><small>{{ r.node.node_id }}</small></td>
+        <td><small>{{ r.timestamp|date:"d M H:i" }}</small></td>
+        <td>{{ r.temperature|default:"—" }}</td>
+        <td>{{ r.humidity|default:"—" }}</td>
+        <td>{{ r.smoke_level|default:"—" }}</td>
+        <td>{{ r.gas_concentration|default:"—" }}</td>
+        <td>{% if r.flame_detected %}<span class="text-danger">🔥</span>{% else %}—{% endif %}</td>
+        <td><span class="badge badge-risk-{{ r.risk_level }}">{{ r.risk_level|upper }}</span></td>
+        <td><span class="badge {% if r.condition == 'fire_detected' %}bg-danger{% elif r.condition == 'fire_suspected' %}bg-warning text-dark{% elif r.condition == 'warning' %}bg-info{% else %}bg-success{% endif %}">{{ r.get_condition_display }}</span></td>
+        <td>{% if r.is_simulated %}<span class="simulated-badge">SIM</span>{% endif %}</td>
+      </tr>
+      {% empty %}<tr><td colspan="10" class="text-center text-muted py-4">No readings found.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-3"><ul class="pagination pagination-sm justify-content-center">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹ Prev</a></li>{% endif %}
+  <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next ›</a></li>{% endif %}
+</ul></nav>
+{% endif %}
+{% endblock %}

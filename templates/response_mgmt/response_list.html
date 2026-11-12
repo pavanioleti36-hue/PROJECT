@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-truck me-2"></i>{{ title }}</h1>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 'response_mgmt:response_create' %}" class="btn btn-forest btn-sm">+ Response</a>
+    <a href="{% url 'response_mgmt:suppression_create' %}" class="btn btn-outline-danger btn-sm">+ Suppression</a>
+    <a href="{% url 'response_mgmt:evacuation_create' %}" class="btn btn-outline-warning btn-sm">+ Evacuation</a>
+    <a href="{% url 'response_mgmt:rescue_create' %}" class="btn btn-outline-info btn-sm">+ Rescue</a>
+    <a href="{% url 'response_mgmt:resource_create' %}" class="btn btn-outline-secondary btn-sm">+ Resource</a>
+  </div>
+</div>
+<div class="card mb-3"><div class="card-header">Emergency Responses</div>
+<div class="table-responsive"><table class="table table-sm table-hover mb-0">
+  <thead class="table-forest"><tr><th>Incident</th><th>Team</th><th>Status</th><th>Personnel</th><th>Dispatched</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for r in responses %}
+    <tr>
+      <td><a href="{% url 'incidents:incident_detail' r.incident.pk %}">{{ r.incident.incident_id }}</a></td>
+      <td>{{ r.response_team }}</td>
+      <td><span class="badge bg-secondary">{{ r.get_status_display }}</span></td>
+      <td>{{ r.personnel_count }} persons, {{ r.vehicles }} vehicles</td>
+      <td class="small text-muted">{{ r.dispatched_at|date:"d M H:i" }}</td>
+      <td>
+        <a href="{% url 'response_mgmt:response_update' r.pk %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'response_mgmt:response_delete' r.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="text-center text-muted py-3">No response operations.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+<div class="row g-3">
+  <div class="col-md-6"><div class="card"><div class="card-header">Fire Suppression</div>
+  <div class="table-responsive"><table class="table table-sm mb-0">
+    <thead class="table-forest"><tr><th>Incident</th><th>Method</th><th>Effectiveness</th><th>Started</th></tr></thead>
+    <tbody>
+      {% for s in suppressions %}
+      <tr><td>{{ s.incident.incident_id }}</td><td>{{ s.method }}</td><td>{{ s.get_effectiveness_display }}</td><td class="small text-muted">{{ s.started_at|date:"d M H:i" }}</td></tr>
+      {% empty %}<tr><td colspan="4" class="text-center text-muted py-2">None.</td></tr>{% endfor %}
+    </tbody>
+  </table></div></div></div>
+  <div class="col-md-6"><div class="card"><div class="card-header">Evacuations</div>
+  <div class="table-responsive"><table class="table table-sm mb-0">
+    <thead class="table-forest"><tr><th>Incident</th><th>Zone</th><th>Evacuated</th><th>Started</th></tr></thead>
+    <tbody>
+      {% for e in evacuations %}
+      <tr><td>{{ e.incident.incident_id }}</td><td>{{ e.evacuation_zone }}</td><td>{{ e.people_evacuated }}</td><td class="small text-muted">{{ e.started_at|date:"d M H:i" }}</td></tr>
+      {% empty %}<tr><td colspan="4" class="text-center text-muted py-2">None.</td></tr>{% endfor %}
+    </tbody>
+  </table></div></div></div>
+</div>
+{% endblock %}

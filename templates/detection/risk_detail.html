@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title">Risk Assessment Detail</h1>
+  <a href="{% url 'detection:risk_dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Assessment Summary</div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-5">Forest Area</dt><dd class="col-sm-7">{{ assessment.forest_area }}</dd>
+        <dt class="col-sm-5">Assessed At</dt><dd class="col-sm-7">{{ assessment.assessed_at|date:"d M Y H:i" }}</dd>
+        <dt class="col-sm-5">Risk Level</dt><dd class="col-sm-7"><span class="badge badge-risk-{{ assessment.risk_level }} fs-6">{{ assessment.risk_level|upper }}</span></dd>
+        <dt class="col-sm-5">Condition</dt><dd class="col-sm-7">{{ assessment.get_condition_display }}</dd>
+        <dt class="col-sm-5">Overall Score</dt><dd class="col-sm-7"><strong>{{ assessment.overall_risk_score }}/100</strong></dd>
+        <dt class="col-sm-5">Active Nodes</dt><dd class="col-sm-7">{{ assessment.active_nodes }}</dd>
+        <dt class="col-sm-5">Readings Used</dt><dd class="col-sm-7">{{ assessment.readings_count }}</dd>
+      </dl>
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Individual Risk Scores</div>
+    <div class="card-body">
+      {% for label, value, color in risk_items %}
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1"><span>{{ label }}</span><span class="fw-bold">{{ value }}/100</span></div>
+        <div class="progress" style="height:10px;"><div class="progress-bar bg-{{ color }}" style="width:{{ value }}%;"></div></div>
+      </div>
+      {% endfor %}
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Temperature Risk</span><span>{{ assessment.temperature_risk }}/100</span></div>
+        <div class="progress" style="height:10px;"><div class="progress-bar bg-danger" style="width:{{ assessment.temperature_risk }}%;"></div></div>
+      </div>
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Smoke Risk</span><span>{{ assessment.smoke_risk }}/100</span></div>
+        <div class="progress" style="height:10px;"><div class="progress-bar bg-secondary" style="width:{{ assessment.smoke_risk }}%;"></div></div>
+      </div>
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Flame Risk</span><span>{{ assessment.flame_risk }}/100</span></div>
+        <div class="progress" style="height:10px;"><div class="progress-bar bg-danger" style="width:{{ assessment.flame_risk }}%;"></div></div>
+      </div>
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Humidity Risk</span><span>{{ assessment.humidity_risk }}/100</span></div>
+        <div class="progress" style="height:10px;"><div class="progress-bar bg-info" style="width:{{ assessment.humidity_risk }}%;"></div></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

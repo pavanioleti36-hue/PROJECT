@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-map me-2"></i>{{ title }}</h1>
+  <div class="d-flex gap-3 align-items-center small text-muted">
+    <span><span style="display:inline-block;width:12px;height:12px;background:#5a9e4e;border-radius:50%;"></span> Forest Areas ({{ total_areas }})</span>
+    <span><span style="font-size:1rem;">🔥</span> Incidents ({{ total_incidents }})</span>
+  </div>
+</div>
+<div class="card mb-3">
+  <div class="card-header">Interactive Forest Fire Risk Map <small class="text-muted">(OpenStreetMap — No API key required)</small></div>
+  <div class="card-body p-0">
+    <div id="fireMap" style="height:500px; border-radius:0 0 10px 10px;"></div>
+  </div>
+</div>
+<div class="alert alert-info small">
+  <i class="bi bi-info-circle me-2"></i>
+  <strong>Green circles</strong> = Forest monitoring areas &nbsp;|&nbsp; <strong>🔥 markers</strong> = Fire incident locations.<br>
+  Click any marker for details. Coordinates come from Forest Area and Incident records.
+  {% if total_areas == 0 %}Add forest areas with GPS coordinates to see them on the map.{% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var areas = {{ areas_json|safe }};
+  var incidents = {{ incidents_json|safe }};
+  initFireMap(areas, incidents);
+});
+</script>
+{% endblock %}

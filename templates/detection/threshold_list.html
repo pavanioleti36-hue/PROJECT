@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-sliders me-2"></i>{{ title }}</h1>
+  <a href="{% url 'detection:threshold_create' %}" class="btn btn-forest btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Config</a>
+</div>
+<div class="row g-3">
+  {% for t in thresholds %}
+  <div class="col-md-6">
+    <div class="card border-{% if t.is_active %}success{% else %}secondary{% endif %}">
+      <div class="card-header d-flex justify-content-between">
+        <span>{{ t.name }} {% if t.is_active %}<span class="badge bg-success ms-1">Active</span>{% endif %}</span>
+        <a href="{% url 'detection:threshold_update' t.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+      </div>
+      <div class="card-body">
+        <div class="row g-2 small">
+          <div class="col-6"><strong>Temp Warning:</strong> {{ t.temp_warning }}°C</div>
+          <div class="col-6"><strong>Temp Fire:</strong> {{ t.temp_fire_suspected }}°C</div>
+          <div class="col-6"><strong>Smoke Warning:</strong> {{ t.smoke_warning }} ppm</div>
+          <div class="col-6"><strong>Smoke Fire:</strong> {{ t.smoke_fire_suspected }} ppm</div>
+          <div class="col-6"><strong>Humidity Critical:</strong> {{ t.humidity_critical }}%</div>
+          <div class="col-6"><strong>Score Fire:</strong> {{ t.score_fire_detected }}/100</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12"><div class="text-center text-muted py-5">
+    No threshold configs. <a href="{% url 'detection:threshold_create' %}">Create one →</a>
+  </div></div>
+  {% endfor %}
+</div>
+{% endblock %}

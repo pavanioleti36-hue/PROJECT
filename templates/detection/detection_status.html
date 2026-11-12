@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-shield-exclamation me-2"></i>{{ title }}</h1>
+  <a href="{% url 'detection:risk_dashboard' %}" class="btn btn-outline-primary btn-sm">Risk Assessment →</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-success"><div class="card-body">
+      <div style="font-size:2.5rem;">✅</div>
+      <div class="fw-bold fs-3 text-success">{{ conditions.normal }}</div>
+      <div class="text-muted small">Normal Condition</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-warning"><div class="card-body">
+      <div style="font-size:2.5rem;">⚠️</div>
+      <div class="fw-bold fs-3 text-warning">{{ conditions.warning }}</div>
+      <div class="text-muted small">Warning Condition</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-danger"><div class="card-body">
+      <div style="font-size:2.5rem;">🔶</div>
+      <div class="fw-bold fs-3 text-danger">{{ conditions.fire_suspected }}</div>
+      <div class="text-muted small">Fire Suspected</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-danger" style="border-width:3px!important;"><div class="card-body">
+      <div style="font-size:2.5rem;">🔥</div>
+      <div class="fw-bold fs-3 text-danger">{{ conditions.fire_detected }}</div>
+      <div class="text-muted small fw-bold">FIRE DETECTED</div>
+    </div></div>
+  </div>
+</div>
+<div class="card"><div class="card-header">Active Sensor Nodes Status</div>
+<div class="table-responsive"><table class="table table-hover table-forest mb-0">
+  <thead><tr><th>Node</th><th>Area</th><th>Condition</th><th>Risk Level</th><th>Score</th><th>Last Reading</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for item in node_status %}
+    <tr class="{% if item.reading and item.reading.condition == 'fire_detected' %}table-danger{% elif item.reading and item.reading.condition == 'fire_suspected' %}table-warning{% elif item.reading and item.reading.condition == 'warning' %}table-info{% endif %}">
+      <td><a href="{% url 'sensors:node_detail' item.node.pk %}">{{ item.node.node_id }}</a></td>
+      <td class="small">{{ item.node.forest_area|default:"—" }}</td>
+      <td>
+        {% if item.reading %}
+        <span class="badge {% if item.reading.condition == 'fire_detected' %}bg-danger{% elif item.reading.condition == 'fire_suspected' %}bg-warning text-dark{% elif item.reading.condition == 'warning' %}bg-info{% else %}bg-success{% endif %}">
+          {{ item.reading.get_condition_display }}
+        </span>
+        {% else %}<span class="badge bg-secondary">No Data</span>{% endif %}
+      </td>
+      <td>{% if item.reading %}<span class="badge badge-risk-{{ item.reading.risk_level }}">{{ item.reading.risk_level|upper }}</span>{% else %}—{% endif %}</td>
+      <td>{% if item.reading %}{{ item.reading.fire_risk_score }}/100{% else %}—{% endif %}</td>
+      <td class="small text-muted">{% if item.reading %}{{ item.reading.timestamp|date:"d M H:i" }}{% else %}Never{% endif %}</td>
+      <td>
+        <form method="post" action="{% url 'sensors:simulate_reading' item.node.pk %}" class="d-inline">
+          {% csrf_token %}<input type="hidden" name="scenario" value="normal">
+          <button type="submit" class="btn btn-xs btn-outline-warning btn-sm">Simulate</button>
+        </form>
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No active sensor nodes found.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

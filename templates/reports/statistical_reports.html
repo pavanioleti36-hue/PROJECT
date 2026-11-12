@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title"><i class="bi bi-bar-chart-line me-2"></i>{{ title }}</h1>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card"><div class="card-body text-center"><div class="stat-value text-success">{{ reading_stats.total|default:0 }}</div><div class="stat-label">Total Readings</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body text-center"><div class="stat-value text-danger">{{ reading_stats.max_risk|floatformat:1|default:0 }}</div><div class="stat-label">Max Risk Score</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body text-center"><div class="stat-value">{{ reading_stats.avg_temp|floatformat:1|default:0 }}°C</div><div class="stat-label">Avg Temperature</div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body text-center"><div class="stat-value text-primary">{{ reading_stats.avg_humidity|floatformat:1|default:0 }}%</div><div class="stat-label">Avg Humidity</div></div></div></div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Readings by Condition</div>
+    <div class="card-body">
+      {% for cond, count in condition_counts.items %}
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="badge {% if cond == 'fire_detected' %}bg-danger{% elif cond == 'fire_suspected' %}bg-warning text-dark{% elif cond == 'warning' %}bg-info{% else %}bg-success{% endif %}">{{ cond|title|cut:"_" }}</span>
+        <div class="progress flex-fill mx-3" style="height:14px;">
+          <div class="progress-bar {% if cond == 'fire_detected' %}bg-danger{% elif cond == 'fire_suspected' %}bg-warning{% elif cond == 'warning' %}bg-info{% else %}bg-success{% endif %}" style="width:{% if reading_stats.total %}{% widthratio count reading_stats.total 100 %}{% else %}0{% endif %}%;"></div>
+        </div>
+        <strong>{{ count }}</strong>
+      </div>
+      {% endfor %}
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header">Sensor Node Statistics</div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-6">Total Nodes</dt><dd class="col-sm-6">{{ node_stats.total }}</dd>
+        <dt class="col-sm-6">Active</dt><dd class="col-sm-6"><span class="text-success fw-bold">{{ node_stats.active }}</span></dd>
+        <dt class="col-sm-6">Inactive</dt><dd class="col-sm-6">{{ node_stats.inactive }}</dd>
+        <dt class="col-sm-6">Faulty</dt><dd class="col-sm-6"><span class="text-danger">{{ node_stats.faulty }}</span></dd>
+        <dt class="col-sm-6">Simulated</dt><dd class="col-sm-6"><span class="simulated-badge">{{ node_stats.simulated }}</span></dd>
+      </dl>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
